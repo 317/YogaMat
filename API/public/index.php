@@ -1,4 +1,4 @@
-;<?php
+<?php
 
 use Phalcon\Loader;
 use Phalcon\Tag;
