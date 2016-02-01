@@ -1,4 +1,4 @@
-<?php
+;<?php
 
 use Phalcon\Loader;
 use Phalcon\Tag;
@@ -62,9 +62,48 @@ try {
         echo (($app->adapter->query("GET", "users/me")));
     });
 
-    $app->get('/test2', function() use ($app) {
-        echo (($app->adapter->query("PUT","tasks/{task_id}",["task_id"=>"83782271739352"], ["notes"=>"GENERATION OK 2"])));
+    $app->get('/task/{task_id}', function($task_id) use ($app) {
+        echo (($app->adapter->query("GET","tasks/{task_id}",["task_id"=>$task_id])));
         //echo (($app->adapter->post("tasks/83782271739352/addTag?tag=testtag")));
+    });
+
+    $app->get("/project/{project_id}", function($project_id) use ($app) {
+        echo (($app->adapter->query("GET","projects/{project_id}",["project_id"=>$project_id])));
+    });
+
+    $app->get("/project/{project_id}/tasks", function($project_id) use ($app) {
+        echo (($app->adapter->query("GET","projects/{project_id}/tasks",["project_id"=>$project_id])));
+    });
+
+    $app->get("/project/{project_id}/velocity", function($project_id) use ($app) {
+        $tasks = json_decode(($app->adapter->query("GET","projects/{project_id}/tasks",["project_id"=>$project_id])));
+        $returner = array();
+        $returner["pts_total"] = 0;
+        $returner["pts_done"] = 0;
+        $returner["completion_list"] = array();
+        foreach($tasks->data as $task){
+            $task_data = json_decode($app->adapter->query("GET","tasks/{task_id}",["task_id"=>$task->id]));
+            $task_data = $task_data->data;
+            //echo json_encode($task_data);
+            foreach($task_data->tags as $tag){
+                if(strpos ($tag->name, " pts") != 0 ){
+                    preg_match_all('!\d+!', $tag->name, $matches);
+                    $var = implode(' ', $matches[0]); 
+                    $returner["pts_total"] += $var;
+                    if($task_data->completed == true){
+                        $returner["pts_done"] += $var;
+                        $completed_at = substr($task_data->completed_at, 0, 10);
+                        if(!isset($returner["completion_list"][$completed_at])){
+                            $returner["completion_list"][$completed_at] = array();
+                            $returner["completion_list"][$completed_at]["pts_done"] = 0;
+                        }
+                        $returner["completion_list"][$completed_at]["pts_done"] += $var;
+                    }
+                }
+            }
+        }
+
+       echo json_encode($returner);
     });
     
     $app->handle();

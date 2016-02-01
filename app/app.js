@@ -1,5 +1,5 @@
 define(
-	['angularAMD', 'angular-route'], 
+	['angularAMD', 'angular-route', 'angularUI'], 
 	function (angularAMD) {
     	var app = angular.module("YogaMat", ['ngRoute']);
 	    app.config(function ($routeProvider) {

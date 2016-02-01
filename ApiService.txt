@@ -1,0 +1,251 @@
+/**
+ * Permet de se connecter à l'API REST.
+ */
+(function () { 'use strict';
+
+    function ApiService($http, $q, config, Base64, ngDialog, Upload, $rootScope, $location, $localStorage) {
+        var vm = this;
+        vm.queries = {};
+        vm.ApiService_processing=false;
+        return {
+          request:request,
+          download:download,
+          upload:upload,
+          ping:ping,
+          login:login,
+          logout:logout,
+          legacyLogin:legacyLogin,
+          legacyLogout:legacyLogout,
+          getENT_ID:getENT_ID,
+          test:"OK"
+        };
+
+        function download(uri, mappings, params) {
+          return request("DOWNLOAD", uri, mappings, true, params);
+        }
+
+        function upload(uri, mappings, params, file) {
+          return request("UPLOAD", uri, mappings, true, params, file);
+		}
+
+
+        function request(method, uri, mappings, error_report, params, file){
+          if(params == undefined){
+            params = {};
+          }
+
+          if(error_report == undefined){
+            error_report = true;
+          }
+
+          if($rootScope.login && $rootScope.password) {
+            $http.defaults.headers.common['Authorization'] = 'Basic '+Base64.encode($rootScope.login + ':' + $rootScope.password);
+          }
+
+          //Traitement des mappings
+          for(var mapping in mappings){
+            uri = uri.replace("{"+mapping+"}", encodeURIComponent(mappings[mapping]));
+          }
+
+          if(uri.search("{") != -1){
+            throw uri+" : manque des mappings !";
+          }
+
+          var url = config.API_ROOT_URL+uri;
+
+          if(method == "POST") {
+            return query_post(url, params, undefined, error_report);
+          } else if (method == "GET") {
+            var param_string = "?";
+            var i = 0;
+            for(var param in params){
+              if(i>0){
+                param_string+="&";
+              }
+              param_string += encodeURIComponent(param)+"="+encodeURIComponent(params[param]);
+              i++;
+            }
+      			if (param_string == "?") {
+      				param_string = "";
+      			}
+            return query_get(url+param_string, undefined, error_report);
+          } else if (method == "DOWNLOAD") {
+			  var lnk = document.createElement('a');
+			  lnk.setAttribute('href', url);
+
+			  console.log("downloading ",lnk);
+			  var ev = document.createEvent("MouseEvents");
+			  ev.initMouseEvent("click", true, false, self, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+			  lnk.dispatchEvent(ev);
+			  return;
+		  } else if (method == "UPLOAD") {
+			  return Upload.upload({
+				url: url,
+				data: {file: file}
+			  });
+		  } else {
+			console.log("Error: unexpected method ", method);
+		  }
+        }
+
+        function login(login, mdp){
+          if (window.location.hash == "#/login") {
+            return query_post(config.API_ROOT_URL+"/login", {"login":login, "mdp":mdp}, undefined, false);
+          }
+          else {
+            return query_post(config.API_ROOT_URL+"/login", {"login":login, "mdp":mdp});
+          }
+        }
+
+        function logout(){
+            $rootScope.user = null;
+            $rootScope.login = null;
+            $rootScope.password = null;
+
+            legacyLogout();
+
+            delete $http.defaults.headers.common['Authorization'];
+        }
+
+        function ping() {
+	    var path_current = "ping";
+	    if ($location.path() && $location.path() != "/") {
+		path_current = $location.path().replace("/", "").replace(/\//g, "_");
+	    }
+            legacyPing();
+
+            return query_get(config.API_ROOT_URL+"/ping/"+path_current, undefined, false);
+        }
+
+
+        function legacyLogin(login, password) {
+            return query_post("/login.do", {"login":login, "password":password}, "application/x-www-form-urlencoded", false);
+        }
+
+        function legacyLogout() {
+            return query_get("/logout.do", undefined, false);
+        }
+
+        var lastKnownRev = undefined;
+        function legacyPing() {
+            query_get("/ping.html",  undefined, false).then(
+				function(data) {
+					if (data.trim().indexOf("OK") != 0) {
+						console.log("v2 session dead, re-logging in");
+						legacyLogin($rootScope.login, $rootScope.password);
+					}
+                    if (lastKnownRev == undefined || $localStorage.lastKnownRev == undefined) {
+                        $localStorage.lastKnownRev = data.trim();
+                    }
+                    lastKnownRev = data.trim();
+                    if(lastKnownRev != $localStorage.lastKnownRev) {
+                        $rootScope.pleaseUpdate = true;
+                    } else
+                        $rootScope.pleaseUpdate = false;
+				});
+        }
+
+        /*
+         * Fonctions de query centralisé
+         */
+
+         function query_get(url, data, error_report){
+            if(data == undefined){
+                data = {};
+            }
+            if(error_report == undefined){
+                error_report = true;
+            }
+            var deferred = $q.defer();
+
+            if($rootScope.login && $rootScope.password) {
+              $http.defaults.headers.common['Authorization'] = 'Basic '+Base64.encode($rootScope.login + ':' + $rootScope.password);
+            }
+
+            $rootScope.ApiService_processing = true;
+            $http.get(url, {withCredentials: true}, data)
+                 .then(function (response) {
+                    $rootScope.ApiService_processing=false;
+                    deferred.resolve(response.data);
+                 })
+                 .catch(function (response) {
+                    $rootScope.ApiService_processing=false;
+				    handleError(url, deferred, response, (error_report && response.status != 0));
+                 });
+            return deferred.promise;
+        }
+
+        function query_post(url, data, content_type, error_report){
+            if(data == undefined){
+                data = {};
+            }
+
+            if(error_report == undefined){
+                error_report = true;
+            }
+
+            var deferred = $q.defer();
+
+            if($rootScope.login && $rootScope.password) {
+              $http.defaults.headers.common['Authorization'] = 'Basic '+Base64.encode($rootScope.login + ':' + $rootScope.password);
+            }
+
+						if (content_type == undefined) {
+							$http.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
+						} else {
+							$http.defaults.headers.post["Content-Type"] = content_type + ";charset=utf-8";
+						}
+
+						var post_data = null;
+
+						if (content_type == "application/x-www-form-urlencoded") {
+							post_data = encodeQuery(data);
+						} else {
+							post_data = data;
+						}
+            $rootScope.ApiService_processing=true;
+            $http.post(url, post_data)
+                 .then(function (response) {
+                    $rootScope.ApiService_processing=false;
+                    deferred.resolve(response.data);
+                 })
+                 .catch(function (response) {
+
+                    $rootScope.ApiService_processing=false;
+                    handleError(url, deferred, response, (error_report && response.status != 0));
+                 });
+            return deferred.promise;
+        }
+
+        function encodeQuery(data) {
+          var result = "";
+          for (var key in data) {
+            var field = encodeURIComponent(key) + "=" + encodeURIComponent(data[key]);
+
+            if (result != "")
+              result = result + "&";
+
+            result = result + field;
+          }
+          return result;
+        }
+
+        function getENT_ID() {
+          return config.ENT_ID;
+        }
+
+		function getExceptionMessage(response) {
+			if (response.data != undefined && response.data.message != undefined) {
+				return response.data.message;
+			} else if (response.data.Exception != undefined) {
+				return response.data.Exception;
+			} else if (response.data != undefined) {
+				return response.data;
+			} else {
+				return response.statusText;
+			}
+		}
+
+		function getExceptionDetailsDiv(response) {
+			var rand = Math.floor(Math.random() * 99999);
+			var str = "<a onclick='$(\"#swalDetails_"+rand+"\").toggle();' style='cu
