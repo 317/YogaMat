@@ -62,6 +62,10 @@ try {
         echo (($app->adapter->query("GET", "users/me")));
     });
 
+     $app->get('/projects', function() use ($app) {
+        echo (($app->adapter->query("GET", "projects")));
+    });
+
     $app->get('/task/{task_id}', function($task_id) use ($app) {
         echo (($app->adapter->query("GET","tasks/{task_id}",["task_id"=>$task_id])));
         //echo (($app->adapter->post("tasks/83782271739352/addTag?tag=testtag")));
