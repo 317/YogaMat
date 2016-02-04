@@ -48,8 +48,7 @@ public class JsonToObject {
 			while(node_fields.hasNext()){
 				Entry<String, JsonNode> elt = node_fields.next();
 				String method_name = "set" + StringUtils.capitalize(elt.getKey());
-				System.out.println(elt.getKey()+" : "+elt.getValue().getClass());
-				
+				//System.out.println(elt.getKey()+" : "+elt.getValue().getClass());
 				try {
 					Method method = this.getClass().getMethod(method_name, elt.getValue().getClass());
 					method.invoke(this, elt.getValue());

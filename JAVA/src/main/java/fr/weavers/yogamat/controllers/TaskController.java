@@ -35,7 +35,10 @@ public class TaskController {
 	@RequestMapping("/project/{project_id}/velocity")
 	@ResponseBody
 	public Object velocity(@PathVariable Long project_id) throws JsonParseException, JsonMappingException, IOException {
+		Project project = Project.Invoke(project_id);
 		VelocityModel velocityModel = new VelocityModel();
+		velocityModel.work_days_number =project.getDetails().get("work_days_number").asInt();
+		velocityModel.days_number =project.getDetails().get("days").asInt();
 		RestTemplate restTemplate = new RestTemplate();
 		String response = restTemplate.getForObject(
 				"https://app.asana.com/api/1.0/projects/{project_id}/tasks?access_token={access_token}", String.class,
@@ -56,6 +59,8 @@ public class TaskController {
 				velocityModel.addToCalendar(task.getCompleted_at(), task.getPoints());
 			}
 		}
+		
+		velocityModel.days_elapsed = velocityModel.getSprint_calendar().size();
 
 		return velocityModel;
 	}

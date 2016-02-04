@@ -8,6 +8,10 @@ public class VelocityModel {
 
 	public Integer nb_total = 0;
 	public Integer nb_completed = 0;
+	public Integer work_days_number = 0;
+	public Integer days_number = 0;
+	public Integer days_elapsed = 0;
+	
 	private TreeMap<String, Integer> sprint_calendar = new TreeMap<String, Integer>();
 	
 	public void addToCalendar(Date date, Integer score){
@@ -22,6 +26,21 @@ public class VelocityModel {
 	
 	public TreeMap<String, Integer> getSprint_calendar(){
 		return sprint_calendar;
+	}
+	
+		
+	public Double getRequired_points_by_day(){
+		if(days_number != 0){
+			return (double) nb_total/days_number;
+		}
+		return (double) -1;
+	}
+	
+	public Double getCurrent_points_by_day(){
+		if(days_number != 0){
+			return (double) (nb_completed)/(days_elapsed);
+		}
+		return (double) -1;
 	}
 	
 }
