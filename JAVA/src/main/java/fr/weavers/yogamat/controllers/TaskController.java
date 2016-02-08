@@ -1,8 +1,6 @@
 package fr.weavers.yogamat.controllers;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Iterator;
 
 import org.springframework.stereotype.Controller;
@@ -63,6 +61,50 @@ public class TaskController {
 		velocityModel.days_elapsed = velocityModel.getSprint_calendar().size();
 
 		return velocityModel;
+	}
+	
+	@RequestMapping("/project/{project_id}/update_details")
+    @ResponseBody
+    public Object updateDetails(@PathVariable Long project_id) throws JsonParseException, JsonMappingException, IOException {
+	    String notes = "";
+	    String notes_to_insert = "TEST OK";
+	    Project project = Project.Invoke(project_id);
+	    notes = project.getNotes();
+	   
+	    
+	    RestTemplate restTemplate = new RestTemplate();
+	    /*
+	    if(!notes.contains("== Sprint Stats ==")){
+	        if(!notes.contains("== YOGAMAT INIT ==")){
+	            return "Invalid project";
+	        }else{
+	            //Initialisation
+	        }
+	    }else{
+	        notes.split("== Sprint Stats ==");
+	        
+	       
+	        
+	        
+	    }
+	    */
+	    /*
+	    HttpURLConnection con = (HttpURLConnection) new URL("https://app.asana.com/api/1.0/projects/"+project_id).openConnection();
+	    
+	    con.setRequestProperty("Authorization", "Bearer "+key); 
+	    con.setRequestMethod("PUT");
+	    con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        con.setDoOutput(true);
+        con.setDoInput(true);
+        
+        
+	    con.getOutputStream().write("{\"notes\":\"CECI EST UN TEST JAVA\"}".getBytes("UTF-8"));
+	    con.getInputStream();
+	    */
+	    restTemplate.put(
+                "https://app.asana.com/api/1.0/projects/{project_id}?access_token={access_token}&{data}", 
+                String.class, project_id, key, "{\"notes\":\"notes_to_insert\"}");
+	    return "ok";
 	}
 
 	@RequestMapping("/test")
