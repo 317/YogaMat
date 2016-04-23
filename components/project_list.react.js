@@ -1,4 +1,3 @@
-var root_url = "http://localhost:8080";    
 var ProjectList = React.createClass({
   getInitialState: function() {
     return {data: []};
@@ -38,5 +37,4 @@ var ProjectList = React.createClass({
 
 
 
-ReactDOM.render(<ProjectList url="/projects" pollInterval={2000}/>, document.getElementById('left'));
-ReactDOM.render(<h1>Hello, world!</h1>, document.getElementById('center'));
+ReactDOM.render(<ProjectList url="/projects" pollInterval={20000}/>, document.getElementById('left'));
