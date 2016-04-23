@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+
+   
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6"><h1>YOGAMAT</h1></div>
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+          <ul class="list-group">
+            <li class="list-group-item">Projet 1</li>
+            <li class="list-group-item">Projet 2</li>
+            <li class="list-group-item">Projet 3</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <!-- Content -->
+            
+            <div class="row">
+            <h2>Projet 1 </h2>
+              <h3>Overview</h3>
+              <div class="col-md-8">
+                <canvas id="myChart" width="100" height="30"></canvas>
+              </div>
+              <div class="col-md-4">
+                Projet du 21/04 au 26/04
+ 
+                Ceci est la description du projet.
+              </div>
+            </div>
+            <div class="row">
+              <h3>Bilan</h3>
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th>Nombre de points</th>
+                    <td>198</td>
+                  </tr>
+                  <tr>
+                    <th>Nombre de jour-homme</th>
+                    <td>42</td>
+                  </tr>
+                  <tr>
+                    <th>Nombre de points à réaliser par jour</th>
+                    <td>23</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="row">
+              <h3>Calendrier</h3>
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <th>Lundi 21 Mars 2016</th>
+                    <td>5</td>
+                  </tr>
+                  <tr>
+                    <th>Mardi 22 Mars 2016</th>
+                    <td>12</td>
+                  </tr>
+                  <tr>
+                    <th>Mercredi 23 Mars 2016</th>
+                    <td>0</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- jQuery first, then Bootstrap JS. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.0.0/Chart.js"></script>
+
+    <script>
+      $(document).ready(function(){
+        var data = {
+          labels: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Lundi", "Mardi"],
+          datasets: [
+              {
+                  label: "Nombre de points réalisés",
+                  fillColor: "rgba(220,220,220,0.2)",
+                  strokeColor: "rgba(220,220,220,1)",
+                  pointColor: "rgba(220,220,220,1)",
+                  pointStrokeColor: "#fff",
+                  pointHighlightFill: "#fff",
+                  pointHighlightStroke: "rgba(220,220,220,1)",
+                  data: [65, 59, 80, 81, 56, 55, 40]
+              }
+          ]
+        };
+
+
+        // Get the context of the canvas element we want to select
+        var ctx = document.getElementById("myChart").getContext("2d");
+        var myNewChart = new Chart(ctx , {
+            type: "bar",
+            data: data, 
+            options: {
+              height:"200px",
+              scales: {
+                  xAxes: [{
+                    stacked: true
+                  }],
+                  yAxes: [{
+                    stacked: true
+                  }]
+                }
+              }
+        });
+      })
+      
+    </script>
+  </body>
+</html>
