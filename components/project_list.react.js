@@ -1,14 +1,14 @@
 var ProjectList = React.createClass({
   getInitialState: function() {
-    return {data: []};
+    return { data: [] };
   },
   loadCommentsFromServer: function() {
     $.ajax({
-      url: root_url+this.props.url,
+      url: root_url + this.props.url,
       dataType: 'json',
       cache: false,
       success: function(data) {
-        this.setState({data: data});
+        this.setState({ data: data });
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
@@ -27,6 +27,7 @@ var ProjectList = React.createClass({
         </li>
       );
     });
+
     return (
       <ul className="list-group">
         {projects}
