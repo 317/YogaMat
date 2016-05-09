@@ -1,6 +1,6 @@
 # YogaMat
 
-THIS PROJECT IS WIP. I used daily in my company but I nver got to finishing it.
+THIS PROJECT IS WIP. I used daily in my company but I never got to finish it.
 
 ## What's this?
 For the people who love pain and try to do some Scrum with Asana!
